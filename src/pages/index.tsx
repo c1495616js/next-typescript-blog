@@ -2,7 +2,6 @@ import Image from 'next/image'
 import * as React from 'react';
 
 import { Blob } from '@/components/Atoms'
-import Layout from '@/components/layout/Layout';
 import Seo from '@/components/Seo';
 
 import avatar from '../../public/images/the-avatar.png'
@@ -11,9 +10,9 @@ import avatar from '../../public/images/the-avatar.png'
 export default function HomePage() {
   return (
     <div className="flex flex-col-reverse items-center mt-12 lg:flex-row lg:justify-between lg:space-x-6">
+      <Seo />
     <p className="max-w-3xl mt-12 text-3xl font-semibold lg:mt-0 sm:text-4xl sm:text-left md:text-center lg:text-left">
-      Hi, I’m Jeff. I’m an experienced game developer with deep interest in
-      modern web development.
+      Hi, I’m Jerry. I’m a react developer.
     </p>
     <div className="relative">
       <Blob />
@@ -32,6 +31,5 @@ export default function HomePage() {
       </div>
     </div>
   </div>
-
   );
 }

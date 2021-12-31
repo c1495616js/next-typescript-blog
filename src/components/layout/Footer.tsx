@@ -37,13 +37,13 @@ export function Footer() {
               className="self-center text-xs tracking-wider md:self-end"
               aria-label="Copyright"
             >
-              © 2020 - 2021 Jeff Jadulco. All Rights Reserved.
+              © 2021 - 2022 Jerry Wang. All Rights Reserved.
             </span>
             <div className="flex flex-row items-center justify-center space-x-6 md:justify-end">
               <span>
                 <a
-                  href="mailto:hey@jeffjadulco.com"
-                  aria-label="Email hey@jeffjadulco.com"
+                  href="mailto:c1495616@gmail.com"
+                  aria-label="Email c1495616@gmail.com"
                   title="Email"
                   className="focus-visible:outline-accent focus:text-accent"
                 >
@@ -52,7 +52,7 @@ export function Footer() {
               </span>
               <span>
                 <a
-                  href="https://github.com/jeffjadulco"
+                  href="https://github.com/c1495616js"
                   aria-label="Visit GitHub profile"
                   title="Visit GitHub profile"
                   target="_blank"
@@ -64,7 +64,7 @@ export function Footer() {
               </span>
               <span>
                 <a
-                  href="https://twitter.com/jeffjadulco"
+                  href="https://twitter.com/c1495616"
                   aria-label="Visit Twitter profile"
                   title="Visit Twitter profile"
                   target="_blank"
