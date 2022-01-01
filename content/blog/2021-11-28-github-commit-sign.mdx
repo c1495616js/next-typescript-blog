@@ -1,0 +1,73 @@
+---
+title: Verrified Commit Signed User
+description: Verrified Signed user when you commit the code
+publishedAt: '2021-11-28'
+tags: ['git', 'github']
+isPublished: true
+---
+
+# Verrified Commit User
+
+![image](https://i.imgur.com/3yUahLu.png)
+
+## Refs
+
+- https://blog.keenthinker.com/github-signed-commits
+
+## Process
+
+- install gpg: https://blog.ghostinthemachines.com/2015/03/01/how-to-use-gpg-command-line/
+
+- start
+
+Just follow the ref above from step 1 to step 7.
+
+## Share across multiple devices
+
+Refs:
+
+- [stackoverflow](https://askubuntu.com/questions/32438/how-to-share-one-pgp-key-on-multiple-machines)
+
+I have macbook and also have a ubuntu desktop.
+
+I have gpg key on my macbook first,
+so on the macbook:
+
+```
+gpg -a --export-secret-key > secret.asc
+
+```
+
+Then on my ubuntu desktop:
+
+```
+gpg import secret.asc
+```
+
+## Issues
+
+Not sure if it's because mine is M1 macbook.
+
+```
+error: gpg failed to sign the data
+fatal: failed to write commit object
+```
+
+- solution:
+
+[This](https://stackoverflow.com/questions/41052538/git-error-gpg-failed-to-sign-data/41054093) works for me:
+![](https://i.imgur.com/mGUKZa6.png)
+
+- ref:
+
+https://stackoverflow.com/questions/39494631/gpg-failed-to-sign-the-data-fatal-failed-to-write-commit-object-git-2-10-0
+
+## gpg without password
+
+![](https://i.imgur.com/aNlWnvW.png)
+
+`brew install pinentry-mac`
+
+Add this line `pinentry-program /opt/homebrew/bin/pinentry-mac` to `~/.gnupg/gpg-agent.conf`
+
+`code ~/.gnupg/gpg-agent.conf`

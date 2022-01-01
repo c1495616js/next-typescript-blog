@@ -1,0 +1,290 @@
+---
+title: Integration of Nest.js, Pusher and Lambda Cron
+description: Integration of Nest.js and Pusher and Lambda Cron
+publishedAt: '2021-08-31'
+tags: ['nest', 'pusher', 'lambda']
+isPublished: true
+---
+
+## Pusher
+
+### `auth.controller`
+
+```ts
+ @ApiOperation({
+    title: 'Get Pusher Token',
+    description: 'Register for mobile pusher',
+  })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
+  @Get('pusher')
+  async validatePusher(@Req() req, @Res() res): Promise<any> {
+    const token = await this.notificationService.generateToken(
+      req.session.userId,
+    );
+    return res.send(JSON.stringify(token));
+  }
+```
+
+### `notification.service`
+
+```ts
+import * as PushNotifications from '@pusher/push-notifications-server';
+import { ApnsPayload } from '@pusher/push-notifications-server';
+export class NotificationService {
+  private readonly pusherClient: PushNotifications;
+  constructor() {
+    this.pusherClient = new PushNotifications({
+      instanceId: process.env.PUSHER_INSTANCE_ID,
+      secretKey: process.env.PUSHER_KEY,
+    });
+  }
+  async generateToken(userId: string) {
+    return this.pusherClient.generateToken(userId);
+  }
+  async sendMessage(userId: string, title: string, body: string, data?) {
+    if (process.env.NODE_ENV === 'test') {
+      return;
+    }
+    const apns = this.createApnsPayload(title, body, data);
+    const fcm = this.createFcmPayload(title, body, data);
+    this.pusherClient.publishToUsers([userId], { apns, fcm });
+  }
+  async sendSilentPushNotification(userId: string, data?) {
+    const apns = {
+      aps: {
+        'content-available': '1',
+      },
+      data,
+    } as ApnsPayload;
+    if (process.env.NODE_ENV === 'test') {
+      return;
+    }
+    this.pusherClient.publishToUsers([userId], { apns });
+  }
+  async delete(userId: string) {
+    this.pusherClient.deleteUser(userId);
+  }
+  createApnsPayload(
+    title: string,
+    body: string,
+    data?
+  ): PushNotifications.ApnsPayload {
+    return {
+      aps: {
+        alert: {
+          title,
+          body,
+        },
+      },
+      data,
+    } as ApnsPayload;
+  }
+  createFcmPayload(title: string, body: string, data?) {
+    return {
+      data: {
+        title,
+        body,
+        data,
+      },
+    };
+  }
+}
+```
+
+## Lambda
+
+### `lambda function`
+
+```js
+const handler = async function (event) {
+  try {
+    require("dotenv").config();
+    let rp = require("request-promise");
+    let jwt = require("jsonwebtoken");
+
+    // // Set up local request
+    // let localToken = jwt.sign(
+    //   {
+    //     type: "cron",
+    //     expiresIn: "1m",
+    //   },
+    //   process.env.LOCAL
+    // );
+    // let localOptions = {
+    //   headers: { Authorization: `Bearer ${localToken}` },
+    //   method: "GET",
+    // };
+
+    // Set up dev request
+    let devToken = jwt.sign(
+      {
+        type: "cron",
+        expiresIn: "1m",
+      },
+      process.env.DEV
+    );
+    let devOptions = {
+      headers: { Authorization: `Bearer ${devToken}` },
+      method: "GET",
+    };
+    console.log(process.env.testing);
+    // Set up testing request
+    let testingToken = jwt.sign(
+      {
+        type: "cron",
+      },
+      process.env.TESTING,
+      {
+        expiresIn: "5m",
+      }
+    );
+    let testingOptions = {
+      headers: { Authorization: `Bearer ${testingToken}` },
+      method: "GET",
+    };
+
+    // Set up staging request
+    let stagingToken = jwt.sign(
+      {
+        type: "cron",
+        expiresIn: "1m",
+      },
+      process.env.STAGING
+    );
+    let stagingOptions = {
+      // headers: { Authorization: `Bearer ${stagingToken}` },
+      method: "GET",
+    };
+
+    // Set up prod request
+    let prodToken = jwt.sign(
+      {
+        type: "cron",
+        expiresIn: "1m",
+      },
+      process.env.PROD
+    );
+    let prodOptions = {
+      headers: { Authorization: `Bearer ${prodToken}`, "User-Agent": "test" },
+      method: "GET",
+    };
+    console.log(prodOptions);
+    const result = await Promise.all([
+      //   rp("BASE_URL/cron", localOptions),
+      // rp(`BASE_URL/cron`, devOptions),
+      // rp(`BASE_URL/cron`, testingOptions),
+      // rp(`BASE_URL/cron`, stagingOptions),
+      rp(`BASE_URL/cron`, prodOptions),
+    ]);
+    console.log(result);
+    return;
+  } catch (e) {
+    console.log(e);
+  }
+};
+handler();
+exports.handler = handler;
+
+
+// package.json
+"dependencies": {
+    "dotenv": "10.0.0",
+    "jsonwebtoken": "8.5.1",
+    "request": "2.88.2",
+    "request-promise": "4.2.6"
+}
+
+// .env
+LOCAL=
+DEV=
+TESTING=
+STAGING=
+PROD=
+```
+
+### `cron.controller`
+
+```ts
+import { Controller, Get, UseGuards } from '@nestjs/common';
+import { CronGuard } from 'src/auth/guards/cron.guard';
+import { NotificationEnum } from 'src/notification/enums/notification.enum';
+import { NotificationService } from 'src/notification/notification.service';
+
+@Controller('cron')
+export class CronController {
+  constructor(
+    private readonly meetingService: MeetingService,
+    private readonly notificationService: NotificationService
+  ) {}
+
+  @Get()
+  @UseGuards(CronGuard)
+  async cron() {
+    // do something
+    return;
+  }
+
+  async sendMessages(users: any[]) {
+    users.map(async (user) => {
+      const { title, body, ...data } = user;
+      await this.notificationService.sendMessage(
+        user.userId,
+        title,
+        body,
+        data
+      );
+      await this.meetingService.updateParticipantPushed(user.participantId);
+      console.log('push notification sent:', user);
+    });
+  }
+}
+```
+
+### `cron.guard`
+
+```ts
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
+import * as jwt from 'jsonwebtoken';
+import { Logger } from '@nestjs/common/services/logger.service';
+
+class CronToken {
+  type: string;
+  iat: string;
+}
+
+@Injectable()
+export class CronGuard implements CanActivate {
+  canActivate(ctx: ExecutionContext): boolean {
+    const req = ctx.switchToHttp().getRequest();
+    Logger.log(req.headers);
+    if (!req.headers.authorization) {
+      return false;
+    }
+    const decoded = this.validateToken(req.headers.authorization) as any;
+    if (decoded.type !== 'cron') {
+      return false;
+    }
+    return true;
+  }
+
+  validateToken(auth: string): CronToken {
+    const [bearer, token] = auth.split(' ');
+    if (bearer !== 'Bearer') {
+      throw new HttpException('Invalid token', HttpStatus.FORBIDDEN);
+    }
+    try {
+      return jwt.verify(token, process.env.JWT_SECRET_CRON) as CronToken;
+    } catch (err) {
+      const message = `Token error: ${err.message || err.name}`;
+      throw new HttpException(message, HttpStatus.FORBIDDEN);
+    }
+  }
+}
+```

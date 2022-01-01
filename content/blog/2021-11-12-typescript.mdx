@@ -1,0 +1,204 @@
+---
+title: React, Typescript
+description: Learning React w/ typescript
+publishedAt: '2021-11-12'
+tags: ['react', 'typescript']
+isPublished: true
+---
+
+This is all credit to https://ithelp.ithome.com.tw/articles/10265514.
+Just the summarize from this excellent article.
+
+## Day 2 - Generics
+
+- Applied in `function`, `type`.
+
+### `function`
+
+#### Before:
+
+```ts
+function getFirstElementOfNumberArray(arr: number[]): number {
+    ...
+}
+
+function getFirsetElementOfStringArray(arr: string[]): string {
+    ...
+}
+```
+
+#### After:
+
+```ts
+function getFirstElement<T>(arr: T[]): T {
+    ...
+}
+```
+
+### `type`
+
+#### Before:
+
+```ts
+type PersonWithNumberAge = {
+  age: number;
+};
+
+type PersonWithStringAge = {
+  age: string;
+};
+```
+
+#### After:
+
+```ts
+type Person<T> = {
+  age: T;
+};
+```
+
+## Day 3 - extends
+
+As `generics` is too arbitrary, like `any` type.
+We can have `Generic Contraints` to limit it.
+
+```ts
+function getFirstElement<T extends number>(arr: T[]): T {
+  const [firstElement] = arr;
+  return firstElement;
+}
+```
+
+```ts
+interface PersonName {
+  firstName: string;
+  lastName: string;
+}
+
+// T extends PersonName
+function logPersonName<T extends PersonName>(person: T) {
+  return `${person.firstName} ${person.lastName}`;
+}
+```
+
+## Day 4 - keyof
+
+- Only allowed on `type`
+
+```ts
+type Person = {
+  firsName: string;
+  lastName: string;
+};
+
+type PersonKey = keyof Person; // "firstName" | "lastName"
+```
+
+- `& string`, to limit the key to `string` type.
+
+```ts
+type PersonKey = keyof Person & string;
+```
+
+- key of `any`
+
+```ts
+type KeyOfAny = keyof any; // type KeyOfAny = string | number | symbol
+```
+
+## Day 5 - Indexed Access Types
+
+```ts
+type Person = {
+  firsName: string;
+  lastName: string;
+  age: number;
+  isEmployed: boolean;
+};
+
+type AgeOfPerson = Person['age']; // number
+
+type AgeAndIsEmployedOfPerson = Person['age' | 'isEmployed']; // number | boolean
+
+type valuesOfPerson = Person[keyof Person];
+```
+
+## Day 6 - Generic Functions
+
+```ts
+const user = {
+  firstName: 'PJ',
+  lastName: 'Chen',
+  age: 35,
+  isAdmin: true,
+};
+
+const product = {
+  name: 'iPad mini',
+  price: 14900,
+  manufacturer: 'Apple',
+  madeIn: 'China',
+};
+
+const isAdmin = getObjValue(user, 'isAdmin'); // true
+const manufacturer = getObjValue(product, 'manufacturer'); // 'Apple'
+```
+
+Let's write `getObjValue`
+
+```ts
+// 1. no type
+const getObjValue = (obj, key) => obj[key];
+
+// 2. first with generics
+function getObjValue<T>(obj: T, key: keyof T) {
+  return obj[key];
+}
+
+// 3. more advanced, limit the keys of T
+function getObjValue<T, U extends keyof T>(obj: T, key: U) {
+  return obj[key];
+}
+
+type Product = {
+  name: string;
+  price: number;
+  manufacturer: string;
+  madeIn: string;
+};
+
+// only allowed 'manufacturer' | 'price' as key
+const age = getObjValue<Product, 'manufacturer' | 'price'>(
+  product,
+  'manufacturer'
+);
+```
+
+## Day - 7 Utility Types
+
+```ts
+type OrNull<Type> = Type | null;
+
+type OneOrMany<Type> = Type | Type[];
+
+type OneOrManyOrNull<Type> = OrNull<OneOrMany<Type>>;
+
+type Keys<T> = keyof T & string;
+
+type Values<T> = T[keyof T];
+
+type PickObj<T, U extends keyof T> = T[U];
+```
+
+## Day - 8 Conditional Types
+
+`X extends Y`: `X` is subset of `Y`
+
+```ts
+type NewType = X extends Y ? T : F;
+```
+
+## Refs
+
+- https://github.com/sindresorhus/type-fest
+- https://ithelp.ithome.com.tw/articles/10265514

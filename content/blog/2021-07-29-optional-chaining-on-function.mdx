@@ -1,0 +1,27 @@
+---
+title: Optional Chaining on Function
+description: optional chaining on Function
+publishedAt: '2021-07-29'
+tags: ['js']
+isPublished: true
+---
+
+Just notice the optional chaining `?.` can also apply to `Function`.
+
+For example,
+
+```ts
+const echo = (name: string): string => name;
+
+echo?.('hi'); // 'hi'
+```
+
+which means that `echo?.('hi')` is equal to `echo ? echo('hi') : void`
+
+The use case I saw is from the npm package [react-error-boundar](https://github.com/bvaughn/react-error-boundary/blob/master/src/index.tsx)
+
+![image](https://user-images.githubusercontent.com/31360789/127532223-46124e22-a1e6-4fcb-a0db-e2423f4832d5.png)
+
+## Refs
+
+- https://javascript.info/optional-chaining

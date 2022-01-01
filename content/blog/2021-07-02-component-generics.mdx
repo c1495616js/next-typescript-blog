@@ -1,0 +1,40 @@
+---
+title: Component with Generics
+description: Using generics in React Component
+publishedAt: '2021-07-02'
+tags: ['react', 'typescript']
+isPublished: true
+---
+
+![](https://i.imgur.com/aXqNK9N.png)
+
+```typescript
+interface IProps<T = any> {
+  data: T[];
+}
+
+export const BaseTable: FC<IProps<string>> = ({ data }) => {
+  return <div></div>;
+};
+
+export const BaseTableWithGeneric = <T>({ data }: IProps<T>): ReactElement => {
+  return <div></div>;
+};
+
+const MyComponent: FC = () => {
+  return (
+    <>
+      <BaseTableWithGeneric<string> data={['string1', 'string2']} />
+
+      <BaseTableWithGeneric<{ name: string }>
+        data={[{ name: 'string1' }, { name: 'string2' }]}
+      />
+    </>
+  );
+};
+```
+
+### Refs
+
+- `<T, >` in `.tsx` [stackoverflow](https://stackoverflow.com/questions/32308370/what-is-the-syntax-for-typescript-arrow-functions-with-generics)
+- [Passing Generics to JSX Elements in TypeScript](https://mariusschulz.com/blog/passing-generics-to-jsx-elements-in-typescript)

@@ -6,6 +6,7 @@ import { ReactQueryDevtools } from 'react-query/devtools';
 
 import '@/styles/globals.css';
 import '@/styles/nprogress.css';
+import '@/styles/codeblock.css'
 
 import axiosClient from '@/lib/axios';
 

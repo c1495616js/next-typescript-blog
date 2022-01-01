@@ -1,3 +1,18 @@
+.next-logo-animate {
+  stroke-dasharray: 6000;
+  stroke-width: 5px;
+  animation: draw 12s linear forwards infinite;
+}
+
+@keyframes draw {
+  from {
+    stroke-dashoffset: 6000;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
 @font-face {
   font-family: 'Inter';
   font-style: normal;
