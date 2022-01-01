@@ -1,0 +1,28 @@
+---
+title: PHN Validation
+description: Validate if Personal Health Number valid at British Columbia
+publishedAt: '2021-07-18'
+tags: ['typescript']
+isPublished: true
+---
+
+Validate if Personal Health Number valid at British Columbia.
+
+Credit to my coworker, `Dr. Will`.
+
+```ts
+import _ from 'lodash';
+
+const isValidPhn = (phn: string) =>
+  !!phn.match(/^9[0-9]{9}$/) &&
+  _(phn)
+    .toArray()
+    .drop(1)
+    .map((d) => parseInt(d))
+    .zipWith([2, 4, 8, 5, 10, 9, 7, 3, 1], (x, y) => x * y)
+    .sum() %
+    11 ===
+    0;
+```
+
+[Spreadsheet Generator](https://docs.google.com/spreadsheets/d/1d2fjjzpjEdZ0Yjlo4FFhdQwZPk-qFNlYCt6aMKNuuTE/edit#gid=0)

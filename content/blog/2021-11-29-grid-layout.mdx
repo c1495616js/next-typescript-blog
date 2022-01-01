@@ -1,0 +1,94 @@
+---
+title: Last Row of 2-Cols Grid
+description: Layout the last row of 2-Cols Grid
+publishedAt: '2021-11-29'
+tags: ['css', 'react', 'tailwind', 'styled-components']
+isPublished: true
+---
+
+Let's see how to layout this kind of views.
+
+### Scenario
+
+1. screen size < `640px`: has `1` column
+2. screen size >= `640px`: has `2` columns
+3. last row has `no bottom border`
+4. if `2` columns, and only have `odd` length of data, then the last one has to be `centered`.
+
+- scenario `2, 3`:
+
+![](https://i.imgur.com/lmUWwz6.png)
+
+- scenario `2, 3, 4`:
+
+![](https://i.imgur.com/Pk9OaHH.png)
+
+## Solutions
+
+We will use `tailwindCSS` + `styled-components`
+
+### Idea
+
+- To centralize: We double the columns and use `col-span`.
+
+Keypoints: `sm:grid-cols-4`, `sm:col-span-2`.
+
+- To deal with the `bottom border`:
+
+Keypoints:
+
+```ts showLineNumbers fileName=.css
+
+  &:nth-last-child(-n + 1) {
+    border: none;
+  }
+
+  @media (min-width: 640px) {
+    &:nth-last-child(-n + 2):nth-child(2n - 1) {
+      border: none;
+    }
+    &:nth-last-child(-n + 1):nth-child(2n - 1) {
+      grid-column-start: 2;
+    }
+  }
+
+```
+
+### Codes
+
+- Layout Parent Component:
+
+```ts
+<div className='grid grid-cols-1 gap-6 sm:grid-cols-4'>
+  {mockData.map((data) => (
+    <Card {...data} />
+  ))}
+</div>
+```
+
+- Card Child Component
+
+```ts
+const Styles = styled.div.attrs({
+  className: 'grid gap-2 border-b border-secondary-400 pb-4 sm:col-span-2',
+})`
+  &:nth-last-child(-n + 1) {
+    border: none;
+  }
+
+  @media (min-width: 640px) {
+    &:nth-last-child(-n + 2):nth-child(2n - 1) {
+      border: none;
+    }
+    &:nth-last-child(-n + 1):nth-child(2n - 1) {
+      grid-column-start: 2;
+    }
+  }
+`;
+
+const Card = (data) => <Styles>...Card Contents</Styles>;
+```
+
+## Refs
+
+- https://css-irl.info/controlling-leftover-grid-items/
