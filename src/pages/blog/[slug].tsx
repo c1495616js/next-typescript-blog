@@ -1,55 +1,48 @@
-import classNames from 'classnames'
-import { format, parseISO } from 'date-fns'
-import { getMDXComponent } from 'mdx-bundler/client'
-import { GetStaticPaths, GetStaticProps, InferGetStaticPropsType } from 'next'
-import { Fragment, useMemo } from 'react'
+import classNames from 'classnames';
+import { format, parseISO } from 'date-fns';
+import { getMDXComponent } from 'mdx-bundler/client';
+import { GetStaticPaths, GetStaticProps, InferGetStaticPropsType } from 'next';
+import { Fragment, useMemo } from 'react';
 
-import { getAllFrontMatters, getMdxBySlug } from '@/lib/mdx'
+import { getAllFrontMatters, getMdxBySlug } from '@/lib/mdx';
 
-import { components } from '@/components/MdxComponents'
-import { QuickNav } from '@/components/QuickNav'
-import SEO  from '@/components/Seo'
+import { components } from '@/components/MdxComponents';
+import { QuickNav } from '@/components/QuickNav';
 
-import type { Frontmatter } from '@/types/frontmatter'
+import type { Frontmatter } from '@/types/frontmatter';
 
 type Post = {
-  frontmatter: Frontmatter
-  code: string
-}
+  frontmatter: Frontmatter;
+  code: string;
+};
 
 export default function BlogPost({
   post: { code, frontmatter },
 }: InferGetStaticPropsType<typeof getStaticProps>) {
-  const Component = useMemo(() => getMDXComponent(code), [code])
+  const Component = useMemo(() => getMDXComponent(code), [code]);
 
-  const publishedAt = parseISO(frontmatter.publishedAt)
+  const publishedAt = parseISO(frontmatter.publishedAt);
   const updatedAt = frontmatter.updatedAt
     ? parseISO(frontmatter.updatedAt)
-    : undefined
+    : undefined;
 
   return (
     <Fragment>
-      <SEO
-        blog
-        title={frontmatter.title}
-        description={frontmatter.description}
-        ogImage={frontmatter.seoImage}
-      />
       <div
         className={classNames(
-          'relative flex justify-between mt-12 mb-12 xl:-mr-52',
+          'flex relative justify-between mt-12 mb-12 xl:-mr-52',
           {
             'flex-row-reverse': Boolean(frontmatter.toc),
           }
         )}
       >
         {frontmatter.toc && (
-          <aside className="sticky hidden h-screen max-w-xs mt-8 ml-6 top-16 xl:block">
+          <aside className='hidden sticky top-16 mt-8 ml-6 max-w-xs h-screen xl:block'>
             <QuickNav />
           </aside>
         )}
-        <article className="max-w-3xl min-w-0 text-base lg:text-lg text-fore-subtle">
-          <div className="mb-2 text-sm tracking-normal text-fore-subtle">
+        <article className='text-fore-subtle min-w-0 max-w-3xl text-base lg:text-lg'>
+          <div className='text-fore-subtle mb-2 text-sm tracking-normal'>
             <span>
               <time dateTime={publishedAt.toISOString()}>
                 {format(publishedAt, 'MMMM dd yyyy')}
@@ -60,7 +53,7 @@ export default function BlogPost({
             {updatedAt && (
               <Fragment>
                 <span> • </span>
-                <span className="italic">
+                <span className='italic'>
                   Last updated:{' '}
                   <time dateTime={updatedAt.toISOString()}>
                     {format(updatedAt, 'MMMM dd yyyy')}
@@ -69,30 +62,30 @@ export default function BlogPost({
               </Fragment>
             )}
           </div>
-          <h1 className="mb-10 text-4xl font-extrabold lg:text-5xl text-fore-primary">
+          <h1 className='text-fore-primary mb-10 text-4xl font-extrabold lg:text-5xl'>
             {frontmatter.title}
           </h1>
           <Component components={components} />
         </article>
       </div>
     </Fragment>
-  )
+  );
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const posts = await getAllFrontMatters()
+  const posts = await getAllFrontMatters();
   return {
-    paths: posts.map(post => ({
+    paths: posts.map((post) => ({
       params: {
         slug: post.slug,
       },
     })),
     fallback: false,
-  }
-}
+  };
+};
 
-export const getStaticProps: GetStaticProps = async context => {
-  const { code, frontmatter } = await getMdxBySlug(context.params.slug)
+export const getStaticProps: GetStaticProps = async (context) => {
+  const { code, frontmatter } = await getMdxBySlug(context.params.slug);
   return {
     props: {
       post: {
@@ -100,5 +93,5 @@ export const getStaticProps: GetStaticProps = async context => {
         frontmatter,
       } as Post,
     },
-  }
-}
+  };
+};
