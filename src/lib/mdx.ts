@@ -37,7 +37,7 @@ async function getMdxByPath(mdxPath) {
       return options;
     },
   });
-  console.log(code);
+
   return {
     code,
     frontmatter: {
