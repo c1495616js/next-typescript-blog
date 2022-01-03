@@ -1,10 +1,11 @@
-import fs from 'fs';
+import fs from 'fs/promises';
 import globby from 'globby';
 import { bundleMDX } from 'mdx-bundler';
 import path from 'path';
 import readingTime from 'reading-time';
 import { rehypeAccessibleEmojis } from 'rehype-accessible-emojis';
 import rehypeHeadings from 'rehype-autolink-headings';
+import rehypePrism from 'rehype-prism-plus';
 import rehypeSlug from 'rehype-slug';
 
 import rehypeHighlightCode from './rehype-highlight-code';
@@ -20,21 +21,23 @@ async function getMdxBySlug(slug) {
 
 async function getMdxByPath(mdxPath) {
   const slug = path.basename(mdxPath).replace(path.extname(mdxPath), '');
-  const source = fs.readFileSync(path.join(process.cwd(), mdxPath), 'utf8');
+  const source = await fs.readFile(path.join(process.cwd(), mdxPath), 'utf8');
   const { code, frontmatter } = await bundleMDX({
     source,
     xdmOptions(options) {
       options.rehypePlugins = [
         ...(options.rehypePlugins ?? []),
         rehypeMetaAttribute,
-        rehypeHighlightCode,
+        // rehypeHighlightCode,
         rehypeAccessibleEmojis,
         rehypeSlug,
+        rehypePrism,
         [rehypeHeadings, { behavior: 'append' }],
       ];
       return options;
     },
   });
+  console.log(code);
   return {
     code,
     frontmatter: {
@@ -49,7 +52,7 @@ async function getAllFrontMatters(): Promise<Frontmatter[]> {
   const paths = await globby([`${MDX_PATH}/**/*.mdx`]);
   const matters = await Promise.all(
     paths.map(async (filePath) => {
-      const source = fs.readFileSync(filePath, 'utf8');
+      const source = await fs.readFile(filePath, 'utf8');
       const { code, frontmatter } = await bundleMDX({ source });
       return {
         ...(frontmatter as Frontmatter),
