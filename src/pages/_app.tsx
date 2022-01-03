@@ -3,10 +3,12 @@ import Router from 'next/router';
 import nProgress from 'nprogress';
 import { QueryClient, QueryClientProvider, QueryOptions } from 'react-query';
 import { ReactQueryDevtools } from 'react-query/devtools';
+import 'prism-theme-night-owl';
 
 import '@/styles/globals.css';
+// import '@/styles/codeblock.css';
+import '@/styles/code.css';
 import '@/styles/nprogress.css';
-import '@/styles/codeblock.css'
 
 import axiosClient from '@/lib/axios';
 

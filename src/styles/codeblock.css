@@ -151,3 +151,11 @@ code {
   background-color: var(--color-code-background-file);
   font-size: 0.8rem;
 }
+
+.highlight-line {
+  margin-left: -16px;
+  margin-right: -16px;
+  background-color: rgba(55, 65, 81, 0.5);
+  border-left-width: 4px;
+  border-left-color: rgb(59, 130, 246);
+}
