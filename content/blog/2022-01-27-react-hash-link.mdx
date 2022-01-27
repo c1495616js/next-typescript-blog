@@ -1,0 +1,36 @@
+---
+title: React Hash Link
+date: '2022-01-27'
+description: React router to hash anchor
+tags: ['react', 'react-router']
+---
+
+## Idea
+
+React-router does not support routing to `#id`.
+This npm `react-router-hash-link` is life saver.
+
+## Issue
+
+But got some issue when it routes to the anchor, it might break the UI.
+I think it's because of `offset`.
+
+Here is the solution.
+
+```tsx
+const scrollWithOffset = (el: HTMLElement) => {
+    const yCoordinate = el.getBoundingClientRect().top + window.pageYOffset;
+    const yOffset = -80; 
+    window.scrollTo({ top: yCoordinate + yOffset, behavior: 'smooth' }); 
+}
+
+<NavHashLink smooth to='/#link' scroll={scrollWithOffset}>
+     Link
+</NavHashLink>
+```
+
+## Refs
+
+- https://github.com/rafgraph/react-router-hash-link/issues/25#issuecomment-536688104
+
+
