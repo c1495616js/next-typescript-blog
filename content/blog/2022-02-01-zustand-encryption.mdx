@@ -1,0 +1,67 @@
+---
+title: Zustand-Persist Encrypted Storage
+description: Making your storage encrypted
+publishedAt: '2022-02-01'
+tags: ['react', 'zustand', 'encryption']
+isPublished: true
+---
+
+## Idea
+
+Encrypting the storage of zustand-persist.
+We know zustand-persist using localStorage as default, and it's raw.
+This article is going to talk about how to encrypt your storage for basic security.
+
+## Code
+
+- We will use npm package called `deepvault`.
+
+```bash
+npm i deepvault
+```
+
+- And replace this storage in zustand-persist middleware.
+
+```tsx
+import { devtools, persist, StateStorage } from 'zustand/middleware';
+import DeepVault from 'deepvault';
+
+/** Store Encryption */
+const storeVault = new DeepVault('store');
+const vaultStorage: StateStorage = {
+  getItem: async (name: string): Promise<string | null> => {
+    try {
+      const data = await storeVault.getDecryptedData();
+      if (data) {
+        return data;
+      }
+    } catch (err) {
+      console.error(err);
+    }
+    return null;
+  },
+  setItem: async (name: string, value: string): Promise<void> => {
+    try {
+      if (!storeVault.getEncryptedData()) {
+        await storeVault.encryptAndSaveData(value);
+      } else {
+        await storeVault.updateData(value);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  },
+};
+
+const persistStore = persist<
+  StoreState,
+  SetState<StoreState>,
+  GetState<StoreState>,
+  StoreApi<StoreState>
+>(Store, {
+  name: 'NAME',
+  getStorage: () => vaultStorage,
+});
+```
+
+
