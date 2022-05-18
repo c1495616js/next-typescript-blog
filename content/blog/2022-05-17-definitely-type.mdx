@@ -1,0 +1,99 @@
+---
+title: Contribution to DefinitelyType
+description: Document how to contribute to open source DefinitelyType
+publishedAt: '2022-05-17'
+tags: ['typescript']
+isPublished: true
+---
+
+## Description
+
+Today, I was npm install a tiny package called [format-thousands](https://www.npmjs.com/package/format-thousands).
+There is no type of it, so I think why not I make a contribution to it.
+
+## Result
+Got my very first merge.
+
+https://github.com/DefinitelyTyped/DefinitelyTyped/pull/60387
+
+## Steps to contribution
+
+1. Fork the DefinitelyTyped [repo](https://github.com/DefinitelyTyped/DefinitelyTyped)
+2. git clone the forked one.
+3. `git checkout -b <module_name>`
+4. `mkdir -p types/<module_name>`
+5. `npm i -g <module_name>`
+6. `npm i -g dts-gen`
+
+- under folder `types/<module_name>`
+7. `dts-gen -m <module_name>`, then it will generate simple `index.d.ts`.
+
+### main code 
+
+Check my example:
+https://github.com/DefinitelyTyped/DefinitelyTyped/pull/60387
+
+- under folder `types/<module_name>`
+
+1. Add file `<module_name>-test.ts`
+Just import the `<module_name>` and do some test.
+
+2. Add file `index.d.ts`
+
+Add this on the top of the file. 
+Example:
+```ts fileName=index.d.ts
+// Type definitions for format-thousands 2.0
+// Project: https://github.com/VovanR/format-thousands
+// Definitions by: Jerry Wang <https://github.com/c1495616js>
+// Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
+```
+
+
+3. Add file `tsconfig.json`. (simply copy / paste)
+And change to `<module_name>-tests.ts` in `files` array.
+
+```ts showLineNumbers
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "lib": [
+            "es6"
+        ],
+        "noImplicitAny": true,
+        "noImplicitThis": true,
+        "strictFunctionTypes": true,
+        "strictNullChecks": true,
+        "baseUrl": "../",
+        "typeRoots": [
+            "../"
+        ],
+        "types": [],
+        "noEmit": true,
+        "forceConsistentCasingInFileNames": true
+    },
+    "files": [
+        "index.d.ts",
+        "format-thousands-tests.ts"
+    ]
+}
+```
+
+4. Add file `tslint.json` (simply copy / paste)
+```
+{ "extends": "@definitelytyped/dtslint/dt.json" }
+```
+
+
+### Before Pull Request
+
+- under root folder
+
+1. `npm t <module_name>`
+2. `npm lint <module_name>`
+
+### Final
+
+- Make a PR under your fork repo.
+
+Then someone will do a review for you.
