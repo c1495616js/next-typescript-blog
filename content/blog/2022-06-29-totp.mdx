@@ -1,0 +1,63 @@
+---
+title: What is TOTP?
+description: Document what is TOTP
+publishedAt: '2022-06-29'
+tags: ['security']
+isPublished: true
+---
+
+## Description
+
+We may have already used TOTP ([Time-based one-time password](https://en.wikipedia.org/wiki/Time-based_one-time_password)) many times, but wondering what's the theory behind.
+
+![](https://davidwalsh.name/demo/2fa-google-auth.png)
+(image copied from https://davidwalsh.name/2fa)
+
+## Steps to generate TOTP
+
+- Get Unix Timestamp
+
+```js
+const now = new Date();
+const unix = now.getTime();
+```
+
+- If we want to generate different TOTP every `60` seconds, then we could get the integer part by `unix / 60`.
+
+```js
+const int = Math.floor(unix / 60);
+```
+
+- When you generate TOTP, the website will give you a QRCode to scan, it consists the `secret`.
+Let's say secret is like: 
+
+```js
+const SECRET = 'ABCDE12345';
+```
+
+- Use [HMAC](https://www.freeformatter.com/hmac-generator.html) to hash the `int` part and the `secret`.
+
+```js
+const crypto = require('crypto');
+
+const hash = crypto.createHmac('sha256', SECRET)
+                   .update(int)
+                   .digest('hex');
+```
+
+- Convert the `hash` (16-digits) to `10-digits`.
+
+```js
+const TOTP10Digits = parseInt(hash, 16);
+```
+
+- Get the last 6-digits of `TOTP`
+
+```js
+const TOTP = TOTP10Digists % 10^6;
+```
+
+## Conclusion
+
+That's it. Very simple. And the website will save the same `secret` as the one on your mobile authenticator app.
+And from the algorithm above, you don't need the internet to get the TOTP.
